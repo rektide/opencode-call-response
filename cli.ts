@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readdir, readFile, access } from "node:fs/promises";
+import { readdir, readFile, access, writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { homedir } from "node:os";
 
@@ -43,9 +43,7 @@ function matchesPattern(sessionDir: string, pattern: string): boolean {
     return sessionDir === pattern;
   }
 
-  const regexPattern = pattern
-    .replace(/\*/g, ".*")
-    .replace(/\?/g, ".");
+  const regexPattern = pattern.replace(/\*/g, ".*").replace(/\?/g, ".");
   const regex = new RegExp(`^${regexPattern}$`);
 
   return regex.test(sessionDir);
@@ -102,6 +100,71 @@ function displaySessions(sessions: Session[]) {
   }
 }
 
+async function enableMdns(): Promise<void> {
+  const configPath1 = join(homedir(), ".config", "opencode", "opencode.json");
+  const configPath2 = join(homedir(), ".opencode", "opencode.json");
+
+  let config1Exists = false;
+  let config2Exists = false;
+  let config1HasMdns = false;
+  let config2HasMdns = false;
+
+  try {
+    await access(configPath1);
+    config1Exists = true;
+    const content = await readFile(configPath1, "utf-8");
+    const config = JSON.parse(content);
+    config1HasMdns = config.server?.mdns !== undefined;
+  } catch {}
+
+  try {
+    await access(configPath2);
+    config2Exists = true;
+    const content = await readFile(configPath2, "utf-8");
+    const config = JSON.parse(content);
+    config2HasMdns = config.server?.mdns !== undefined;
+  } catch {}
+
+  let targetFile: string;
+  let existingConfig: any = {};
+
+  if (config1HasMdns) {
+    targetFile = configPath1;
+    const content = await readFile(configPath1, "utf-8");
+    existingConfig = JSON.parse(content);
+  } else if (config2HasMdns) {
+    targetFile = configPath2;
+    const content = await readFile(configPath2, "utf-8");
+    existingConfig = JSON.parse(content);
+  } else if (config1Exists && !config2Exists) {
+    targetFile = configPath1;
+    const content = await readFile(configPath1, "utf-8");
+    existingConfig = JSON.parse(content);
+  } else if (config2Exists && !config1Exists) {
+    targetFile = configPath2;
+    const content = await readFile(configPath2, "utf-8");
+    existingConfig = JSON.parse(content);
+  } else {
+    targetFile = configPath1;
+    if (config1Exists) {
+      const content = await readFile(configPath1, "utf-8");
+      existingConfig = JSON.parse(content);
+    }
+  }
+
+  existingConfig.server = existingConfig.server || {};
+  existingConfig.server.mdns = true;
+
+  if (!existingConfig.$schema) {
+    existingConfig.$schema = "https://opencode.ai/config.json";
+  }
+
+  const targetDir = join(targetFile, "..");
+  await mkdir(targetDir, { recursive: true });
+  await writeFile(targetFile, JSON.stringify(existingConfig, null, 2));
+  console.log(`Enabled mdns in ${targetFile}`);
+}
+
 const command = process.argv[2];
 const options: { dir?: string } = {};
 
@@ -116,9 +179,16 @@ async function main() {
     const dir = options.dir;
     const sessions = await listSessions(dir);
     displaySessions(sessions);
+  } else if (command === "zeroconf") {
+    await enableMdns();
   } else {
-    console.log("Usage: node cli.ts list [--dir <pattern>]");
-    console.log("  list    List all sessions");
+    console.log("Usage: node cli.ts <command>");
+    console.log("");
+    console.log("Commands:");
+    console.log("  list      List all sessions");
+    console.log("  zeroconf  Enable mDNS zeroconf setting in OpenCode config");
+    console.log("");
+    console.log("List options:");
     console.log("  -d, --dir  Filter sessions by directory pattern");
     process.exit(1);
   }
