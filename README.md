@@ -6,6 +6,6 @@
 
 | tool       | description                         | params=[default]                                    |
 | ---------- | ----------------------------------- | --------------------------------------------------- |
-| `list`     | list all sessions                   | `dir=[pwd]` constraint                              |
+| `list`     | list all sessions                   | `dir=[pwd]` constraint, `active=[false]`            |
 | `call`     | send a request or message           | `session=[new]`, `elaborate=[true]`, `fork=[false]` |
 | `response` | multitool for queues responses, get | `get=[top]`, `list=[false]`                         |
