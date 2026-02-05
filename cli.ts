@@ -62,7 +62,7 @@ async function listSessions(dir?: string): Promise<Session[]> {
       const content = await readFile(sessionFilePath, "utf-8");
       const session: Session = JSON.parse(content);
 
-      if (dir && session.directory !== dir) continue;
+      if (dir && !session.directory.includes(dir)) continue;
 
       sessions.push(session);
     }
@@ -102,9 +102,9 @@ async function main() {
     const sessions = await listSessions(dir);
     displaySessions(sessions);
   } else {
-    console.log("Usage: node cli.ts list [--dir <path>]");
+    console.log("Usage: node cli.ts list [--dir <pattern>]");
     console.log("  list    List all sessions");
-    console.log("  -d, --dir  Filter sessions by directory");
+    console.log("  -d, --dir  Filter sessions by directory pattern");
     process.exit(1);
   }
 }
