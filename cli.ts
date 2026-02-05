@@ -36,6 +36,21 @@ interface Session {
   };
 }
 
+function matchesPattern(sessionDir: string, pattern: string): boolean {
+  const hasWildcard = pattern.includes("*");
+
+  if (!hasWildcard) {
+    return sessionDir === pattern;
+  }
+
+  const regexPattern = pattern
+    .replace(/\*/g, ".*")
+    .replace(/\?/g, ".");
+  const regex = new RegExp(`^${regexPattern}$`);
+
+  return regex.test(sessionDir);
+}
+
 async function listSessions(dir?: string): Promise<Session[]> {
   const storagePath = await getOpenCodeStoragePath();
   const sessionPath = join(storagePath, "session");
@@ -62,7 +77,7 @@ async function listSessions(dir?: string): Promise<Session[]> {
       const content = await readFile(sessionFilePath, "utf-8");
       const session: Session = JSON.parse(content);
 
-      if (dir && !session.directory.includes(dir)) continue;
+      if (dir && !matchesPattern(session.directory, dir)) continue;
 
       sessions.push(session);
     }
