@@ -3,8 +3,12 @@
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
+	"bin": {
+		"opencode-call-response": "./cli.ts"
+	},
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"cli": "node cli.ts"
 	},
 	"repository": {
 		"type": "git",
@@ -18,5 +22,10 @@
 		"url": "https://github.com/rektide/opencode-call-response/issues"
 	},
 	"homepage": "https://github.com/rektide/opencode-call-response#readme",
-	"module": "opencode-call-response.js"
+	"module": "opencode-call-response.js",
+	"devDependencies": {
+		"gunshi": "^0.27.6",
+		"oxfmt": "^0.28.0",
+		"oxlint": "^1.43.0"
+	}
 }
