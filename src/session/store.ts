@@ -40,8 +40,8 @@ export async function listSessions(dir?: string): Promise<Session[]> {
       const session: Session = JSON.parse(content);
 
       if (targetDir) {
-        const startsWith = session.directory.startsWith(targetDir);
-        if (!startsWith) continue;
+        const isUnder = session.directory === targetDir || session.directory.startsWith(targetDir + "/");
+        if (!isUnder) continue;
       }
 
       sessions.push(session);
