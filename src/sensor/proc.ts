@@ -80,20 +80,17 @@ function extractPortFromArgs(args: string[]): number | undefined {
 }
 
 export class ProcSensor implements Sensor {
-  async discover(): Promise<Instance[]> {
+  async *discover(): AsyncGenerator<Instance> {
     const processes = await getOpenCodeProcesses();
-    const instances: Instance[] = [];
 
     for (const proc of processes) {
       const port = extractPortFromArgs(proc.cmdline);
-      instances.push({
+      yield {
         port: port ?? 4096,
         pid: proc.pid,
         cwd: proc.cwd,
         source: "proc",
-      });
+      };
     }
-
-    return instances;
   }
 }

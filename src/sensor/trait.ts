@@ -7,6 +7,6 @@ export interface Instance {
 }
 
 export interface Sensor {
-  discover(timeout?: number): Promise<Instance[]>;
+  discover(timeout?: number): AsyncGenerator<Instance>;
   stop?(): void;
 }

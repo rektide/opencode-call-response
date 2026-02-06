@@ -4,17 +4,16 @@ import { Instance, Sensor } from "./trait.js";
 export class MdnsSensor implements Sensor {
   private browser?: Browser;
 
-  async discover(timeout = 5000): Promise<Instance[]> {
-    const instances: Instance[] = [];
+  async *discover(timeout = 5000): AsyncGenerator<Instance> {
     const bonjour = new Browser();
-
     this.browser = bonjour;
 
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        this.stop();
-        resolve(instances);
-      }, timeout);
+    const timer = setTimeout(() => {
+      this.stop();
+    }, timeout);
+
+    try {
+      const instances: Instance[] = [];
 
       bonjour.find({ type: "http", protocol: "tcp" }, (service) => {
         if (!service.name.includes("opencode")) {
@@ -29,7 +28,15 @@ export class MdnsSensor implements Sensor {
           });
         }
       });
-    });
+
+      await new Promise((resolve) => setTimeout(resolve, timeout));
+
+      for (const instance of instances) {
+        yield instance;
+      }
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   stop(): void {
