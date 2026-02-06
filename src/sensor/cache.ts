@@ -19,9 +19,6 @@ export class CacheSensor implements Sensor {
       if (instance.pid !== undefined) {
         seen.add(instance.pid);
       }
-    }
-
-    for (const instance of this.instances) {
       yield instance;
     }
 
