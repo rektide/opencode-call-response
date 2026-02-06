@@ -1,5 +1,5 @@
 import { Browser } from "bonjour-service";
-import { Instance, Sensor } from "./trait.ts";
+import type { Instance, Sensor } from "./types.ts";
 
 export class MdnsSensor implements Sensor {
   private browser?: Browser;

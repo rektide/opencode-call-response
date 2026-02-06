@@ -1,4 +1,4 @@
-import { Session } from "./session.ts";
+import type { Session } from "./types.ts";
 
 export type SessionPredicate = (session: Session) => boolean;
 

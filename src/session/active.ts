@@ -1,5 +1,5 @@
-import { Instance } from "../sensor/trait.ts";
-import { Session } from "./session.ts";
+import type { Instance } from "../sensor/types.ts";
+import type { Session } from "./session.ts";
 
 export type ActiveSession = Session & {
   port: number;

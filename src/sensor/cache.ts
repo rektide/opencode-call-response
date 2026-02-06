@@ -1,4 +1,4 @@
-import { Instance, Sensor } from "./trait.ts";
+import type { Instance, Sensor } from "./types.ts";
 import { mergeGenerators } from "../util/generator.ts";
 
 export interface CacheOptions {

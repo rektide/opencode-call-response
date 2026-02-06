@@ -1,5 +1,6 @@
-export interface Session {
-  sessionID: string;
+import type { Session as PersistedSession } from "./types.ts";
+
+export type Session = Omit<PersistedSession, "time" | "summary" | "share"> & {
   port?: number;
   hostname?: string;
   pid?: number;
@@ -9,4 +10,4 @@ export interface Session {
   retryAttempt?: number;
   retryMessage?: string;
   retryNext?: number;
-}
+};
