@@ -1,4 +1,5 @@
 import { Instance, Sensor } from "./trait.js";
+import { mergeGenerators } from "../util/generator.js";
 
 export interface CacheOptions {
   sensors: Iterable<Sensor>;
@@ -22,19 +23,19 @@ export class CacheSensor implements Sensor {
       yield instance;
     }
 
-    for (const sensor of this.sensors) {
-      for await (const instance of sensor.discover(timeout)) {
-        if (instance.pid !== undefined && seen.has(instance.pid)) {
-          continue;
-        }
+    const sensorGenerators = this.sensors.map((sensor) => sensor.discover(timeout));
 
-        if (instance.pid !== undefined) {
-          seen.add(instance.pid);
-        }
-
-        this.instances.push(instance);
-        yield instance;
+    for await (const instance of mergeGenerators(sensorGenerators)) {
+      if (instance.pid !== undefined && seen.has(instance.pid)) {
+        continue;
       }
+
+      if (instance.pid !== undefined) {
+        seen.add(instance.pid);
+      }
+
+      this.instances.push(instance);
+      yield instance;
     }
   }
 
