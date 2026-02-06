@@ -1,13 +1,10 @@
 import { Instance } from "../sensor/trait.js";
+import { Session } from "./session.js";
 
-export interface ActiveSession {
-  sessionID: string;
+export type ActiveSession = Session & {
   port: number;
   status: "busy" | "retry" | "idle";
-  retryAttempt?: number;
-  retryMessage?: string;
-  retryNext?: number;
-}
+};
 
 async function getSessionStatus(port: number): Promise<Record<string, any> | undefined> {
   try {

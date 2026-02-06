@@ -1,4 +1,4 @@
-import { ActiveSession } from "./active.js";
+import { Session } from "./session.js";
 
 export interface SessionFilter {
   busy?: boolean;
@@ -10,9 +10,9 @@ export interface SessionFilter {
 }
 
 export async function* filterSessions(
-  sessions: AsyncGenerator<ActiveSession>,
+  sessions: AsyncGenerator<Session>,
   filter: SessionFilter,
-): AsyncGenerator<ActiveSession> {
+): AsyncGenerator<Session> {
   for await (const session of sessions) {
     if (filter.busy && session.status !== "busy") {
       continue;
