@@ -1,3 +1,3 @@
-export { Session } from "./session.js";
-export { ActiveSession, getActiveSessions } from "./active.js";
-export { SessionFilter, filterSessions } from "./filter.js";
+export { Session } from "./session.ts";
+export { ActiveSession, getActiveSessions } from "./active.ts";
+export { SessionFilter, filterSessions } from "./filter.ts";

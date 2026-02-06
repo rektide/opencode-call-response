@@ -1,6 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { Instance, Sensor } from "./trait.js";
+import { Instance, Sensor } from "./trait.ts";
 
 interface ProcInfo {
   pid: number;

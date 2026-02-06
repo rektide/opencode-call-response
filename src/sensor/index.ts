@@ -1,4 +1,4 @@
-export { Instance, Sensor } from "./trait.js";
-export { MdnsSensor } from "./mdns.js";
-export { ProcSensor } from "./proc.js";
-export { CacheSensor, type CacheOptions } from "./cache.js";
+export { Instance, Sensor } from "./trait.ts";
+export { MdnsSensor } from "./mdns.ts";
+export { ProcSensor } from "./proc.ts";
+export { CacheSensor, type CacheOptions } from "./cache.ts";

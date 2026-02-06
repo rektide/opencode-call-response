@@ -1,1 +1,1 @@
-export { mergeGenerators } from "./generator.js";
+export { mergeGenerators } from "./generator.ts";

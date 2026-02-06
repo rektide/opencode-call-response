@@ -1,5 +1,5 @@
-import { Instance, Sensor } from "./trait.js";
-import { mergeGenerators } from "../util/generator.js";
+import { Instance, Sensor } from "./trait.ts";
+import { mergeGenerators } from "../util/generator.ts";
 
 export interface CacheOptions {
   sensors: Iterable<Sensor>;
