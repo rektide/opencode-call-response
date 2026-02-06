@@ -1,5 +1,5 @@
 import { readdir, readFile, access } from "node:fs/promises";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { homedir } from "node:os";
 import type { Session } from "./types.ts";
 
@@ -24,6 +24,8 @@ export async function listSessions(dir?: string): Promise<Session[]> {
   const projectDirs = await readdir(sessionPath, { withFileTypes: true });
   const sessions: Session[] = [];
 
+  const targetDir = dir ? resolve(process.cwd(), dir) : undefined;
+
   for (const projectDir of projectDirs) {
     if (!projectDir.isDirectory()) continue;
 
@@ -37,16 +39,14 @@ export async function listSessions(dir?: string): Promise<Session[]> {
       const content = await readFile(sessionFilePath, "utf-8");
       const session: Session = JSON.parse(content);
 
-      if (dir && !session.directory.match(patternForDir(dir))) continue;
+      if (targetDir) {
+        const startsWith = session.directory.startsWith(targetDir);
+        if (!startsWith) continue;
+      }
 
       sessions.push(session);
     }
   }
 
   return sessions.sort((a, b) => b.time.updated - a.time.updated);
-}
-
-function patternForDir(dir: string | undefined): RegExp | undefined {
-  if (!dir) return undefined;
-  return new RegExp(`^${dir.replace(/\*/g, ".*").replace(/\?/g, ".")}(?:/.*)?$`);
 }
