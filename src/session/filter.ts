@@ -1,41 +1,65 @@
 import { Session } from "./session.js";
 
-export interface SessionFilter {
+export type SessionPredicate = (session: Session) => boolean;
+
+export interface SessionFilter extends Partial<Session> {
   busy?: boolean;
   idle?: boolean;
   retrying?: boolean;
-  port?: number;
   sessionIDPattern?: string;
   minRetryAttempt?: number;
 }
 
-export async function* filterSessions(
-  sessions: AsyncGenerator<Session>,
-  filter: SessionFilter,
-): AsyncGenerator<Session> {
-  for await (const session of sessions) {
-    if (filter.busy && session.status !== "busy") {
-      continue;
+function matches(session: Session, filter: SessionFilter): boolean {
+  for (const [key, value] of Object.entries(filter)) {
+    if (key === "busy" && value === true && session.status !== "busy") {
+      return false;
     }
-    if (filter.idle && session.status !== "idle") {
-      continue;
+    if (key === "idle" && value === true && session.status !== "idle") {
+      return false;
     }
-    if (filter.retrying && session.status !== "retry") {
-      continue;
+    if (key === "retrying" && value === true && session.status !== "retry") {
+      return false;
     }
-    if (filter.port && session.port !== filter.port) {
-      continue;
-    }
-    if (filter.sessionIDPattern && !session.sessionID.includes(filter.sessionIDPattern)) {
-      continue;
+    if (key === "sessionIDPattern" && !session.sessionID.includes(value as string)) {
+      return false;
     }
     if (
-      filter.minRetryAttempt &&
+      key === "minRetryAttempt" &&
       session.retryAttempt !== undefined &&
-      session.retryAttempt < filter.minRetryAttempt
+      session.retryAttempt < (value as number)
     ) {
-      continue;
+      return false;
     }
-    yield session;
+    if (
+      key !== "busy" &&
+      key !== "idle" &&
+      key !== "retrying" &&
+      key !== "sessionIDPattern" &&
+      key !== "minRetryAttempt"
+    ) {
+      const sessionValue = (session as any)[key];
+      if (sessionValue !== value) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+export async function* filterSessions(
+  sessions: AsyncGenerator<Session>,
+  filter: SessionFilter | SessionPredicate,
+): AsyncGenerator<Session> {
+  for await (const session of sessions) {
+    if (typeof filter === "function") {
+      if (filter(session)) {
+        yield session;
+      }
+    } else {
+      if (matches(session, filter)) {
+        yield session;
+      }
+    }
   }
 }
