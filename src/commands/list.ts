@@ -1,5 +1,6 @@
 import { define } from "gunshi";
-import { listSessions, displaySessions } from "../session/index.ts";
+import { listSessions } from "../session/store.ts";
+import { displaySessions } from "../session/types.ts";
 
 export const list = define({
   name: "list",

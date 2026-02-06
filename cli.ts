@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { cli, define } from "gunshi";
-import { list, zeroconf } from "./src/commands/index.ts";
+import { list } from "./src/commands/list.ts";
+import { zeroconf } from "./src/commands/zeroconf.ts";
 
 const main = define({
 	name: "opencode-call-response",
