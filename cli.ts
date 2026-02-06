@@ -92,7 +92,7 @@ function displaySessions(sessions: Session[]) {
   console.log("id\ttitle\tupdated\tdirectory");
 
   for (const session of sessions) {
-    const title = session.title || "Untitled";
+    const title = (session.title || "Untitled").replace(/\n/g, "\\n");
     const updated = new Date(session.time.updated).toISOString();
     const directory = session.directory;
 
