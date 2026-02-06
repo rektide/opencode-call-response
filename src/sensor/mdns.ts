@@ -1,46 +1,41 @@
-import { Browser, Service } from "bonjour-service";
+import { Browser } from "bonjour-service";
+import { Instance, Sensor } from "./trait.js";
 
-export interface Instance {
-	port: number;
-	hostname?: string;
-	type: "mdns";
-}
+export class MdnsSensor implements Sensor {
+  private browser?: Browser;
 
-export class MdnsSensor {
-	private browser?: Browser;
+  async discover(timeout = 5000): Promise<Instance[]> {
+    const instances: Instance[] = [];
+    const bonjour = new Browser();
 
-	async discover(timeout = 5000): Promise<Instance[]> {
-		const instances: Instance[] = [];
-		const bonjour = new Browser();
+    this.browser = bonjour;
 
-		this.browser = bonjour;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.stop();
+        resolve(instances);
+      }, timeout);
 
-		return new Promise((resolve) => {
-			const timer = setTimeout(() => {
-				this.stop();
-				resolve(instances);
-			}, timeout);
+      bonjour.find({ type: "http", protocol: "tcp" }, (service) => {
+        if (!service.name.includes("opencode")) {
+          return;
+        }
 
-			bonjour.find({ type: "http", protocol: "tcp" }, (service) => {
-				if (!service.name.includes("opencode")) {
-					return;
-				}
+        if (service.port) {
+          instances.push({
+            port: service.port,
+            hostname: service.host,
+            source: "mdns",
+          });
+        }
+      });
+    });
+  }
 
-				if (service.port) {
-					instances.push({
-						port: service.port,
-						hostname: service.host,
-						type: "mdns",
-					});
-				}
-			});
-		});
-	}
-
-	stop(): void {
-		if (this.browser) {
-			this.browser.stop();
-			this.browser = undefined;
-		}
-	}
+  stop(): void {
+    if (this.browser) {
+      this.browser.stop();
+      this.browser = undefined;
+    }
+  }
 }
